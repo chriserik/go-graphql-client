@@ -106,13 +106,14 @@ type SubscriptionClient struct {
 	disabledLogTypes []OperationMessageType
 }
 
-func NewSubscriptionClient(url string) *SubscriptionClient {
+func NewSubscriptionClient(url string, client *http.Client) *SubscriptionClient {
 	return &SubscriptionClient{
 		url:           url,
 		timeout:       time.Minute,
 		readLimit:     10 * 1024 * 1024, // set default limit 10MB
 		subscriptions: make(map[string]*subscription),
 		createConn:    newWebsocketConn,
+		createClient:  client,
 		retryTimeout:  time.Minute,
 		errorChan:     make(chan error),
 	}

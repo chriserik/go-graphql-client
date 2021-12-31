@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -95,6 +96,7 @@ type SubscriptionClient struct {
 	isRunning        int64
 	readLimit        int64 // max size of response message. Default 10 MB
 	log              func(args ...interface{})
+	createClient     *http.Client
 	createConn       func(sc *SubscriptionClient) (WebsocketConn, error)
 	retryTimeout     time.Duration
 	onConnected      func()
@@ -604,6 +606,7 @@ func newWebsocketConn(sc *SubscriptionClient) (WebsocketConn, error) {
 
 	options := &websocket.DialOptions{
 		Subprotocols: []string{"graphql-ws"},
+		HTTPClient:   sc.createClient,
 	}
 	c, _, err := websocket.Dial(sc.GetContext(), sc.GetURL(), options)
 	if err != nil {
